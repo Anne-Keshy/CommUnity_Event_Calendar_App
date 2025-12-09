@@ -45,7 +45,7 @@ class DevelopmentConfig(Config):
 class ProductionConfig(Config):
     DEBUG = False
     # Must provide Atlas URI in environment
-    MONGO_URI = os.environ.get('MONGO_URI') or 'mongodb+srv://francischeboo404_db_user:Fr%40m0ng00se387623@communityapp.ktglocw.mongodb.net/event_management?retryWrites=true&w=majority&ssl=true'
+    MONGO_URI = os.environ.get('MONGO_URI')
 
 
 class TestingConfig(Config):

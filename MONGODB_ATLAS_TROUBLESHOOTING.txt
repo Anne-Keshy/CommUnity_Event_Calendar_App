@@ -101,7 +101,7 @@ QUICK CONNECTION TEST (After Troubleshooting)
 
 Once you've fixed the DNS/network issue, run:
 
-  $env:MONGO_URI = 'mongodb+srv://francischeboo404_db_user:Fr%40m0ng00se387623@communityapp.ktglocw.mongodb.net/event_management?retryWrites=true&w=majority&ssl=true'
+  $env:MONGO_URI = 'mongodb://localhost:27017/event_management'
   $env:MONGO_DBNAME = 'event_management'
   & '.\.venv\Scripts\Activate.ps1'
   python .\event-management-backend\test_atlas_connection.py

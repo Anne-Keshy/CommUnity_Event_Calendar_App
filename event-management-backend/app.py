@@ -15,9 +15,8 @@ from extensions import mongo, jwt, socketio, bcrypt
 from routes import register_blueprints
 from websocket_handlers import register_socketio_handlers
 from config import DevelopmentConfig, ProductionConfig, TestingConfig
-from dotenv import load_dotenv
 
-# Load environment variables from .env if exists
+from dotenv import load_dotenv
 load_dotenv()
 
 def create_app(config_name=None):

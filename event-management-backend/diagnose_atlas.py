@@ -10,7 +10,7 @@ print("MongoDB Atlas Network Diagnostic")
 print("=" * 80)
 
 # Extract hostname from URI
-mongo_uri = 'mongodb+srv://francischeboo404_db_user:Fr%40m0ng00se387623@communityapp.ktglocw.mongodb.net/event_management?retryWrites=true&w=majority&ssl=true'
+mongo_uri = 'mongodb://localhost:27017/event_management'
 
 hostname = 'communityapp.ktglocw.mongodb.net'
 port = 27017
