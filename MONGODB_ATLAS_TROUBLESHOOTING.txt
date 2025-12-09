@@ -1,0 +1,135 @@
+📋 MONGODB ATLAS CONNECTION TROUBLESHOOTING GUIDE
+================================================================================
+
+Your MongoDB Atlas connection is failing at the DNS resolution step.
+This means your computer cannot reach communityapp.ktglocw.mongodb.net
+
+PROBLEM DIAGNOSIS:
+  ❌ DNS Resolution FAILED: [Errno 11001] getaddrinfo failed
+  
+ROOT CAUSES (in order of likelihood):
+  1. Your computer is not connected to the internet properly
+  2. Your network has a DNS server that's blocking MongoDB Atlas domains
+  3. Your ISP or firewall is blocking connections to MongoDB
+  4. Your VPN is interfering with the connection
+
+================================================================================
+STEP-BY-STEP TROUBLESHOOTING:
+================================================================================
+
+STEP 1: Verify Internet Connection
+────────────────────────────────────────────────────────────────────────────────
+Run in PowerShell:
+  ping google.com
+  
+Expected: Should show replies from google.com
+
+If this FAILS → Your internet connection is down. Fix that first.
+
+
+STEP 2: Check DNS Specifically
+────────────────────────────────────────────────────────────────────────────────
+Run in PowerShell:
+  nslookup communityapp.ktglocw.mongodb.net
+  
+Expected: Should show the IP address (e.g., 23.251.x.x or similar)
+
+If this FAILS → Your DNS server cannot resolve MongoDB Atlas. Try:
+  • Change DNS to 8.8.8.8 (Google) or 1.1.1.1 (Cloudflare)
+  • Or contact your ISP/network administrator
+
+
+STEP 3: Check If VPN is Active
+────────────────────────────────────────────────────────────────────────────────
+If you have a VPN:
+  • Disconnect the VPN
+  • Try the connection again
+  • Some VPNs block MongoDB connections for security reasons
+
+
+STEP 4: Temporarily Disable Firewall (For Testing Only)
+────────────────────────────────────────────────────────────────────────────────
+⚠️  WARNING: Only do this for testing! Re-enable after.
+
+On Windows:
+  1. Settings → Privacy & Security → Windows Defender Firewall
+  2. Click "Allow an app through firewall"
+  3. Check if Python is allowed for both Private and Public networks
+  
+Or try in PowerShell (Admin):
+  # Temporarily disable firewall (TESTING ONLY)
+  Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled $false
+  
+  # Re-enable it after testing
+  Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled $true
+
+
+STEP 5: Flush DNS Cache
+────────────────────────────────────────────────────────────────────────────────
+Run in PowerShell (as Administrator):
+  ipconfig /flushdns
+  
+Then try the connection again.
+
+
+STEP 6: Add MongoDB Atlas to Windows Firewall
+────────────────────────────────────────────────────────────────────────────────
+Run in PowerShell (as Administrator):
+  # Allow Python (your interpreter) through the firewall
+  New-NetFirewallRule -DisplayName "Python MongoDB" -Direction Outbound -Program "C:\Users\user\Downloads\Community_Event_App-main\.venv\Scripts\python.exe" -Action Allow
+
+  # Allow MongoDB port explicitly
+  New-NetFirewallRule -DisplayName "MongoDB Atlas Port" -Direction Outbound -Action Allow -Protocol tcp -RemotePort 27017
+
+
+STEP 7: Check Network Adapter Settings
+────────────────────────────────────────────────────────────────────────────────
+Run in PowerShell:
+  Get-NetAdapter | Select-Object Name, Status, MediaConnectionState
+  
+Expected: Should show your network adapter as "Up" and "Connected"
+
+
+STEP 8: Update Your Python Certificate Bundle (For TLS Issues)
+────────────────────────────────────────────────────────────────────────────────
+Run in PowerShell:
+  pip install --upgrade certifi
+
+================================================================================
+QUICK CONNECTION TEST (After Troubleshooting)
+================================================================================
+
+Once you've fixed the DNS/network issue, run:
+
+  $env:MONGO_URI = 'mongodb+srv://francischeboo404_db_user:Fr%40m0ng00se387623@communityapp.ktglocw.mongodb.net/event_management?retryWrites=true&w=majority&ssl=true'
+  $env:MONGO_DBNAME = 'event_management'
+  & '.\.venv\Scripts\Activate.ps1'
+  python .\event-management-backend\test_atlas_connection.py
+
+
+ALTERNATIVE: Check MongoDB Atlas Dashboard
+================================================================================
+
+If local connection still fails, verify in the MongoDB Atlas console:
+
+1. Go to: https://account.mongodb.com
+2. Log in with your MongoDB account
+3. Click on your cluster: "communityapp"
+4. Check:
+   - ✅ Cluster status is "Available" (green check)
+   - ✅ Your IP is in Network Access whitelist
+   - ✅ Database user "francischeboo404_db_user" exists
+   - ✅ Connection string is correct
+
+5. Click "Connect" button in Atlas and copy the latest connection string
+
+
+CONTACT SUPPORT
+================================================================================
+
+If the above steps don't work:
+  • MongoDB Atlas Support: https://www.mongodb.com/support
+  • Your ISP: Report if MongoDB Atlas is blocked
+  • Check: https://status.mongodb.com (MongoDB status page)
+
+================================================================================

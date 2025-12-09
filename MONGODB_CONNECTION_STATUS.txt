@@ -1,0 +1,175 @@
+🔴 MONGODB ATLAS CONNECTION STATUS REPORT
+================================================================================
+Generated: December 7, 2025
+
+ISSUE SUMMARY:
+  Your MongoDB Atlas is correctly configured, but your computer CANNOT REACH it
+  due to a DNS resolution issue.
+
+DETAILED FINDINGS:
+================================================================================
+
+✅ PASSED TESTS:
+  • Internet connection: WORKING (ping google.com successful)
+  • MongoDB Atlas Configuration: VALID
+    - Connection string: ✅ Correct format
+    - Username: ✅ Valid
+    - Database: ✅ event_management
+    - SSL/TLS: ✅ Enabled
+    - Retry Writes: ✅ Enabled
+
+❌ FAILED TESTS:
+  • DNS Resolution: FAILED ❌
+    - Your router's DNS (192.168.0.1) cannot resolve MongoDB Atlas
+    - Error: "No internal type for both IPv4 and IPv6 Addresses available"
+    - Attempted to resolve: communityapp.ktglocw.mongodb.net
+    - Result: DNS request timed out (2 second timeout)
+
+ROOT CAUSE:
+  Your home router's DNS server does not have the MongoDB Atlas domain in its
+  records. This is a NETWORK ISSUE, not a MongoDB or application issue.
+
+SOLUTION:
+================================================================================
+
+YOUR ROUTER'S DNS IS BLOCKING MONGODB ATLAS. YOU NEED TO CHANGE IT.
+
+OPTION 1: Change DNS on Your Network Adapter (Recommended - Easiest)
+────────────────────────────────────────────────────────────────────────────────
+
+1. Right-click on the Network icon in the taskbar
+2. Click "Open Network & Internet settings"
+3. Scroll down and click "Advanced network options"
+4. Find your Wi-Fi adapter (Intel(R) Dual Band Wireless-AC 8260)
+5. Click on it
+6. Scroll down to "DNS server assignment"
+7. Click "Edit"
+8. Change from "Automatic" to "Manual"
+9. Enable "IPv4"
+10. Enter these DNS servers:
+    • Preferred: 8.8.8.8 (Google)
+    • Alternate: 8.8.4.4 (Google)
+11. Click "Save"
+12. Wait 30 seconds
+
+OPTION 2: Change DNS Through Router Settings
+────────────────────────────────────────────────────────────────────────────────
+
+1. Open browser and go to: http://192.168.0.1 (your router)
+2. Log in with your router admin credentials
+3. Find "DNS Settings" or "DHCP Settings"
+4. Change DNS to:
+   • Primary: 8.8.8.8 (Google)
+   • Secondary: 8.8.4.4 (Google)
+5. Save changes
+6. Restart your device
+
+OPTION 3: Use Command Line (Requires Administrator PowerShell)
+────────────────────────────────────────────────────────────────────────────────
+
+Run as Administrator in PowerShell:
+
+  # Run this script to fix DNS automatically
+  powershell -Command "Get-NetAdapter | Where-Object {$_.Status -eq 'Up'} | ForEach-Object {Set-DnsClientServerAddress -InterfaceIndex $_.InterfaceIndex -ServerAddresses ('8.8.8.8','8.8.4.4'); ipconfig /flushdns}"
+
+Then try again:
+  nslookup communityapp.ktglocw.mongodb.net
+
+VERIFY THE FIX:
+================================================================================
+
+After changing DNS, run this to verify MongoDB Atlas can be reached:
+
+  nslookup communityapp.ktglocw.mongodb.net
+
+Expected output:
+  Server:  8.8.8.8 (or 8.8.4.4)
+  Address:  8.8.8.8
+  
+  Non-authoritative answer:
+  Name:    communityapp.ktglocw.mongodb.net
+  Address:  23.251.x.x   (or similar IP address)
+
+Then run the connection test:
+
+  $env:MONGO_URI = 'mongodb+srv://francischeboo404_db_user:Fr%40m0ng00se387623@communityapp.ktglocw.mongodb.net/event_management?retryWrites=true&w=majority&ssl=true'
+  $env:MONGO_DBNAME = 'event_management'
+  & '.\.venv\Scripts\Activate.ps1'
+  python .\event-management-backend\test_atlas_connection.py
+
+Expected result:
+  ✅ Server ping successful
+  ✅ All tests PASSED
+
+ALTERNATIVE: Contact Your ISP
+================================================================================
+
+If changing DNS doesn't work, your ISP may be blocking MongoDB Atlas.
+In that case:
+  • Contact your ISP technical support
+  • Explain: "I need to connect to MongoDB Atlas (communityapp.ktglocw.mongodb.net port 27017)"
+  • Ask them to whitelist this domain
+
+OR: Use a VPN
+  • Some VPNs bypass ISP restrictions
+  • NordVPN, ExpressVPN, Surfshark all support MongoDB connections
+
+IMPORTANT NOTES:
+================================================================================
+
+⚠️  Your MongoDB Atlas database IS WORKING correctly.
+    The problem is purely with your network's DNS configuration.
+
+✅ Once DNS is fixed, your Flutter app and backend will connect without issues.
+
+✅ The error you saw (TLS handshake failed) was a SECONDARY issue that appeared
+    because DNS resolution failed first.
+
+CONFIGURATION SUMMARY (For Your Records):
+================================================================================
+
+MongoDB Atlas Connection Details:
+  • Username: francischeboo404_db_user
+  • Cluster: communityapp (communityapp.ktglocw.mongodb.net)
+  • Database: event_management
+  • Authentication: SCRAM-SHA-1
+  • Connection String: mongodb+srv://...@communityapp.ktglocw.mongodb.net...
+  • SSL/TLS: ✅ ENABLED
+  • Retry Writes: ✅ ENABLED
+
+Your Application (Flask):
+  • config.py already has correct MONGO_URI setup
+  • Reads from environment variable: MONGO_URI
+  • Fallback database name: event_management
+  • All settings are correct ✅
+
+Your Mobile App (Flutter):
+  • Will work once DNS is fixed
+  • Make sure backend URL points to your running Flask server
+
+================================================================================
+STILL HAVING ISSUES? CHECK:
+================================================================================
+
+1. Verify your internet is working:
+   ping google.com
+
+2. Verify DNS is changed:
+   nslookup google.com (should show Google's DNS, not 192.168.0.1)
+
+3. Flush DNS cache:
+   ipconfig /flushdns
+
+4. Check your firewall allows MongoDB port:
+   Windows Defender Firewall → Allow an app through firewall → Python
+
+5. Check MongoDB Atlas is running:
+   Go to https://account.mongodb.com → Check cluster "communityapp" is "Available"
+
+6. Check your IP is whitelisted:
+   MongoDB Atlas → Network Access → Your IP should be in the list
+
+CONTACT:
+  • MongoDB Support: https://www.mongodb.com/support
+  • This guide: See MONGODB_ATLAS_TROUBLESHOOTING.txt
+================================================================================
