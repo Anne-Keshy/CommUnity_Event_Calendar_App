@@ -1,7 +1,8 @@
 class Constants {
   // API Base URL
   static const String baseUrl =
-      'http://10.175.206.242:5000'; // For physical device
+      'http://10.1.87.91:5000';
+    
 
   // LLM Configuration
   static const String llmUrl =
